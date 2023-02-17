@@ -102,6 +102,8 @@ class DynamixelArm:
             },
 
         }
+        
+        self.giving_orders = False #if it is false, we can read robot position without any conflict
 
 
 
@@ -127,6 +129,7 @@ class DynamixelArm:
 
     def stop(self):
         print("stopping")
+        self.giving_orders = True
         for id in self.dxl_ids:
             print(id)
             self.disable_torque(id)
@@ -244,20 +247,28 @@ class DynamixelArm:
     def writeProfileAcceleration(self, id, acc):
         self.write( id, acc, self.NBBYTE_PROFILE_ACCELERATION, self.ADDR_PROFILE_ACCELERATION)
 
-    def read(self, id):
+    def read(self, id, nbBytes, tableAddress):
         # Read present position
-            if (self.MY_DXL == 'XL320'): # XL320 uses 2 byte Position Data, Check the size of data in your DYNAMIXEL's control table
-                dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read2ByteTxRx(self.portHandler, id, self.ADDR_PRESENT_POSITION)
-            else:
-                dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read4ByteTxRx(self.portHandler, id, self.ADDR_PRESENT_POSITION)
+            if(nbBytes == 1):
+                dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read1ByteTxRx(self.portHandler, id, tableAddress)
+            elif(nbBytes == 2):
+                dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read2ByteTxRx(self.portHandler, id, tableAddress)
+            elif(nbBytes == 4):
+                dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read4ByteTxRx(self.portHandler, id, tableAddress)
             if dxl_comm_result != COMM_SUCCESS:
                 print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
             elif dxl_error != 0:
                 print("%s" % self.packetHandler.getRxPacketError(dxl_error))
 
-            print("[ID:%03d] PresPos:%03d" % (id, dxl_present_position))
-
             return dxl_present_position
+    
+    def readJointsPosition(self):
+        posej1 = self.dynamyxel2rad(self.robot_infos["j1"], self.read(self.robot_infos["j1"]["address"], 4, self.ADDR_PRESENT_POSITION))
+        posej2 = self.dynamyxel2rad(self.robot_infos["j2"], self.read(self.robot_infos["j2"]["address"], 4, self.ADDR_PRESENT_POSITION))
+        posej3 = self.dynamyxel2rad(self.robot_infos["j3"], self.read(self.robot_infos["j3"]["address"], 4, self.ADDR_PRESENT_POSITION))
+        posej4 = self.dynamyxel2rad(self.robot_infos["j4"], self.read(self.robot_infos["j4"]["address"], 4, self.ADDR_PRESENT_POSITION))
+
+        return [posej1, posej2, posej3, posej4]
     #---------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
