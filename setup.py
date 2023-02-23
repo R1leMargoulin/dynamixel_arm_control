@@ -20,7 +20,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'control_service = dynamixel_arm_control.control_service:main',
+            'control_node = dynamixel_arm_control.control_node:main',
+            'positions_node = dynamixel_arm_control.positions_node:main',
+            'hardware_manager_node = dynamixel_arm_control.hardware_manager_node:main',
             'moveit_controller_bridge = dynamixel_arm_control.moveit_controller_bridge:main',
         ],
     },
