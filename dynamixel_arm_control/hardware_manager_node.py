@@ -29,24 +29,24 @@ class movePlanningService(Node):
 
 #-------------------------------------SERVICES-----------------------------------------------
 
-    def order_callback(self, request, response):
+    def order_callback(self, request):
         print("order recieved")
         try:
             if(request.order_type == "write"):
                 self.robot.write(request.id, request.data, request.nb_bytes, request.table_address)
             elif(request.order_type == "read_joint"):
                 #read motor pose
-                response = self.robot.read(request.id, request.nb_bytes, request.table_address)
+                res = self.robot.read(request.id, request.nb_bytes, request.table_address)
                 #publish motor pose
                 msg = DynamixelPosition()
                 msg.id = request.id
-                msg.pose = response
+                msg.pose = res
                 self.motorPosition_publisher.publish(msg)
             else :
                 self.get_logger().info('ERROR IN ORDER TYPE')
         except Exception as e: 
-            print("error")
-            print(e)
+            self.get_logger().info('error')
+            self.get_logger().info(e)
             self.robot.stop()
             self.get_logger().info('I heard: "%s"' % str(request))
 
@@ -60,7 +60,9 @@ def main(args=None):
         rclpy.spin(srv)
         srv.destroy_node()
         rclpy.shutdown()
-    except:
+    except Exception as e:
+        print('error')
+        print(e)
         srv.robot.stop()
 
 
