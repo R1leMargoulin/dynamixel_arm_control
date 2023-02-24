@@ -20,7 +20,7 @@ else:
         return ch
 
 from dynamixel_sdk import * # Uses Dynamixel SDK library
-from hardware_infos import *
+from dynamixel_arm_control.hardware_infos import *
 
 #********* DYNAMIXEL Model definition *********
 

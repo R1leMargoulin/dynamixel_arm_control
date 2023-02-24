@@ -18,15 +18,15 @@ class movePlanningService(Node):
         super().__init__('move_planning_service')
         #publishers
         self.order_publisher_timer = self.create_timer(0.05, self.joints_read_order) #will publish every 50 ms
-        self.order_publisher = self.create_publisher((DynamixelOrder, '/hardware_order', 10))
+        self.order_publisher = self.create_publisher(DynamixelOrder, '/hardware_order', 10)
         self.joints_position_publisher_timer = self.create_timer(0.05, self.joint_states_publish) #will publish every 50 ms
         self.joints_position_publisher = self.create_publisher(JointState, '/joint_states', 10)
 
         #subscribers
-        self.position_return = self.create_subscription(DynamixelPosition, '/dynamixel_position', self.joint_position_return_callback)
+        self.position_return = self.create_subscription(DynamixelPosition, '/dynamixel_position', self.joint_position_return_callback, 10)
 
         self.names = ['joint1','joint2','joint3','joint4']
-        self.joint_positions = [None, None, None, None]
+        self.joint_positions = [0.0, 0.0, 0.0, 0.0]
 
 #----------------------------------SUBSCRIBER CALLBACKS--------------------------------------------
 

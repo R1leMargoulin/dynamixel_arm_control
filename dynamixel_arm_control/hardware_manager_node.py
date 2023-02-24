@@ -20,7 +20,7 @@ class movePlanningService(Node):
         self.robot = DynamixelArm.DynamixelArm()
         self.robot.start()
         #listener
-        self.order_listener = self.create_subscription(DynamixelOrder, '/hardware_order', self.order_callback)
+        self.order_listener = self.create_subscription(DynamixelOrder, '/hardware_order', self.order_callback, 10)
 
         #publishers
         self.motorPosition_publisher = self.create_publisher(DynamixelPosition, '/dynamixel_position', 10)
