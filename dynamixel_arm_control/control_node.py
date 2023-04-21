@@ -16,7 +16,7 @@ class movePlanningService(Node):
 
 #-------------------------------------------INIT---------------------------------------------
     def __init__(self):
-        super().__init__('move_planning_service')
+        super().__init__('control_node')
         #publishers
         self.order_publisher = self.create_publisher(DynamixelOrder, '/hardware_order', 10)
 
@@ -48,18 +48,23 @@ class movePlanningService(Node):
         
     def move_joints_callback(self, request, response):
         self.get_logger().info('Moving_Robot...' )
+        print(request)
+        jtable = [request.joint1, request.joint2, request.joint3, request.joint4]
         try:
-            for goal in request:
+            for i in range(len(jtable)):
+                print("goal")
+                print(i+1)
                 msg = DynamixelOrder()
                 msg.order_type = "write"
-                msg.id = int(goal[-1])
+                msg.id = i+1
                 msg.nb_bytes = NBBYTE_GOAL_POSITION
                 msg.table_address = ADDR_GOAL_POSITION
-                msg.data = self.rad2Dynamixel(robot_infos["j"+str(goal[-1])], request[goal])
+                msg.data = self.rad2Dynamixel(robot_infos["j"+str(i+1)], jtable[i])
                 self.order_publisher.publish(msg)
             response.response = "OK"
             return response
-        except:
+        except Exception as e:
+             self.get_logger().info(e)
              response.response = "ERROR"
              return response
 
@@ -121,8 +126,9 @@ class movePlanningService(Node):
 
     def move_planning_position(self, motorIds, GoalPoses, Speeds, Accelerations):
         for j in range(len(motorIds)):
-            #print("speed : " + str(self.speed_radSec_to_revMin(Speeds[j])))
-            #print("acceleration :" + str(self.acc_radSec2_to_revMin2(Accelerations[j])))
+            print(j)
+            print("speed : " + str(self.speed_radSec_to_revMin(Speeds[j])))
+            print("acceleration :" + str(self.acc_radSec2_to_revMin2(Accelerations[j])))
             msg = DynamixelOrder()
             msg.order_type = "write"
             msg.id = motorIds[j]

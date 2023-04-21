@@ -14,7 +14,7 @@ class movePlanningService(Node):
 
 #-------------------------------------------INIT---------------------------------------------
     def __init__(self):
-        super().__init__('move_planning_service')
+        super().__init__('hardware_manager')
         
         #hardware
         self.robot = DynamixelArm.DynamixelArm()
@@ -30,9 +30,11 @@ class movePlanningService(Node):
 #-------------------------------------SERVICES-----------------------------------------------
 
     def order_callback(self, request):
-        print("order recieved")
+        #print("order recieved")
+        #print(request)
         try:
             if(request.order_type == "write"):
+                self.robot.enable_torque(request.id)
                 self.robot.write(request.id, request.data, request.nb_bytes, request.table_address)
             elif(request.order_type == "read_joint"):
                 #read motor pose
@@ -41,14 +43,15 @@ class movePlanningService(Node):
                 msg = DynamixelPosition()
                 msg.id = request.id
                 msg.pose = res
+                #print(msg)
                 self.motorPosition_publisher.publish(msg)
             else :
                 self.get_logger().info('ERROR IN ORDER TYPE')
         except Exception as e: 
-            self.get_logger().info('error')
-            self.get_logger().info(e)
+            print('error')
+            print(e)
             self.robot.stop()
-            self.get_logger().info('I heard: "%s"' % str(request))
+            #self.get_logger().info('I heard: "%s"' % str(request))
 
 
 def main(args=None):
@@ -60,6 +63,7 @@ def main(args=None):
         rclpy.spin(srv)
         srv.destroy_node()
         rclpy.shutdown()
+        srv.robot.stop()
     except Exception as e:
         print('error')
         print(e)

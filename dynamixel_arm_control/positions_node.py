@@ -15,7 +15,7 @@ class movePlanningService(Node):
 
 #-------------------------------------------INIT---------------------------------------------
     def __init__(self):
-        super().__init__('move_planning_service')
+        super().__init__('positions_nodes')
         #publishers
         self.order_publisher_timer = self.create_timer(0.05, self.joints_read_order) #will publish every 50 ms
         self.order_publisher = self.create_publisher(DynamixelOrder, '/hardware_order', 10)
