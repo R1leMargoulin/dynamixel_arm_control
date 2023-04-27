@@ -1,5 +1,4 @@
-import rclpy
-from rclpy.node import Node
+import rospy
 
 from sensor_msgs.msg import JointState
 
@@ -10,20 +9,19 @@ from dynamixel_arm_control.hardware_infos import *
 
 
 
-class movePlanningService(Node):
+class PositionsNode():
 
 
 #-------------------------------------------INIT---------------------------------------------
     def __init__(self):
-        super().__init__('positions_nodes')
+        rospy.init_node('positions_node', anonymous=True)
         #publishers
-        self.order_publisher_timer = self.create_timer(0.05, self.joints_read_order) #will publish every 50 ms
-        self.order_publisher = self.create_publisher(DynamixelOrder, '/hardware_order', 10)
-        self.joints_position_publisher_timer = self.create_timer(0.05, self.joint_states_publish) #will publish every 50 ms
-        self.joints_position_publisher = self.create_publisher(JointState, '/joint_states', 10)
+        self.rate = rospy.rate(20) # 20 Hz for t/cycle = 0.05sec or 50ms
+        self.order_publisher = rospy.Publisher('/hardware_order', DynamixelOrder, queue_size=10)
+        self.joints_position_publisher = rospy.Publisher('/joint_states', JointState, queue_size=10)
 
         #subscribers
-        self.position_return = self.create_subscription(DynamixelPosition, '/dynamixel_position', self.joint_position_return_callback, 10)
+        self.position_return = rospy.Subscriber('/dynamixel_position', DynamixelPosition, self.joint_position_return_callback)
 
         self.names = ['joint1','joint2','joint3','joint4']
         self.joint_positions = [0.0, 0.0, 0.0, 0.0]
@@ -115,13 +113,15 @@ class movePlanningService(Node):
 
 def main(args=None):
 
-    rclpy.init(args=args)
-    srv = movePlanningService()
+    
+    node = PositionsNode()
+    while not rospy.is_shutdown():
+        node.joints_read_order()
+        node.joint_states_publish()
+        node.rate.sleep()
 
 
-    rclpy.spin(srv)
-    srv.destroy_node()
-    rclpy.shutdown()
+    rospy.spin()
 
 
 

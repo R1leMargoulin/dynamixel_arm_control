@@ -1,28 +1,23 @@
-import rclpy
+import rospy
 import time
 from moveit_msgs.msg import DisplayTrajectory
 from dynamixel_arm_srv.srv import MoveitController
-from rclpy.node import Node
 
 from array import array
 
-class MoveJointPlanExecutionCallback(Node):
+class MoveitBridge():
     def __init__(self):
-        super().__init__('moveit_controller_bridge')
-        self._client = self.create_client(MoveitController, '/move_planning_service')
-        self._display_sub = self.create_subscription(
-            DisplayTrajectory,
+        rospy.init_node('moveit_controller_bridge')
+        rospy.wait_for_service('/move_planning_service')
+        self.serviceClient = rospy.ServiceProxy( '/move_planning_service', MoveitController)
+        rospy.Subscriber(
             '/display_planned_path',
-            self.display_callback,
-        10)
+            DisplayTrajectory,
+            self.display_callback)
 
     def display_callback(self, display_msg):
         # print(display_msg.trajectory[0].joint_trajectory.points)
         motorIDs = array('B',[])
-        if not self._client.wait_for_service(timeout_sec=1.0):
-            self.get_logger().error('Service not available, quitting...')
-            print("service not available")
-            return   
         for name in display_msg.trajectory[0].joint_trajectory.joint_names:
             #print(name[-1])
             motorIDs.append(int(name[-1]))
@@ -54,7 +49,7 @@ class MoveJointPlanExecutionCallback(Node):
        
 
         # Call the service
-        future = self._client.call_async(request)
+        future = self.serviceClient(request)
 
         # # Wait for the service call to complete
         # rclpy.spin_until_future_complete(self, future)
@@ -62,17 +57,9 @@ class MoveJointPlanExecutionCallback(Node):
         #     self.get_logger().info('Result of service call: %d' % future.result().success)
     
 def main(args=None):
-    rclpy.init(args=args)
 
-    node = MoveJointPlanExecutionCallback()
-
-    rclpy.spin(node)
-
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    node.destroy_node()
-    rclpy.shutdown()
+    node = MoveitBridge()
+    rospy.spin()
 
 
 if __name__ == '__main__':

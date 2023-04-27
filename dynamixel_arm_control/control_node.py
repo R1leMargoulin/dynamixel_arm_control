@@ -1,5 +1,4 @@
-import rclpy
-from rclpy.node import Node
+import rospy
 
 from dynamixel_arm_srv.srv import MoveitController
 from dynamixel_arm_srv.srv import MoveJoints
@@ -11,18 +10,15 @@ from dynamixel_arm_control.hardware_infos import *
 
 
 
-class movePlanningService(Node):
-
-
+class GlobalController():
 #-------------------------------------------INIT---------------------------------------------
     def __init__(self):
-        super().__init__('control_node')
         #publishers
-        self.order_publisher = self.create_publisher(DynamixelOrder, '/hardware_order', 10)
-
+        self.order_publisher = rospy.Publisher('/hardware_order', DynamixelOrder,  queue_size=10)
+        rospy.init_node('control_node', anonymous=True)
         #services
-        self.srv_planning = self.create_service(MoveitController, '/move_planning_service', self.move_planning_callback)
-        self.srv_joints = self.create_service(MoveJoints, 'move_joints', self.move_joints_callback)
+        self.srv_planning = rospy.Service( '/move_planning_service', MoveitController, self.move_planning_callback)
+        self.srv_joints = rospy.Service( 'move_joints', MoveJoints, self.move_joints_callback)
 
 
 
@@ -30,7 +26,7 @@ class movePlanningService(Node):
 
     def move_planning_callback(self, request, response):
         print("order recieved")
-        self.get_logger().info('Moving_Robot...' )
+        #self.get_logger().info('Moving_Robot...' )
         #print(request.motor_ids)
         #print(request.goal_poses) 
         #print(request.speeds) 
@@ -38,16 +34,16 @@ class movePlanningService(Node):
         try:
             self.move_planning_position(request.motor_ids, request.goal_poses, request.speeds, request.accelerations)
             print(" j'arrive ici")
-            response.response = "OK"
+            response = "OK"
             return response
         except Exception as e: 
             print("error")
             print(e)
-            response.response = "ERROR"
+            response = "ERROR"
             return response
         
     def move_joints_callback(self, request, response):
-        self.get_logger().info('Moving_Robot...' )
+        #self.get_logger().info('Moving_Robot...' )
         print(request)
         jtable = [request.joint1, request.joint2, request.joint3, request.joint4]
         try:
@@ -152,15 +148,8 @@ class movePlanningService(Node):
 
 def main(args=None):
 
-    rclpy.init(args=args)
-    srv = movePlanningService()
-
-
-    rclpy.spin(srv)
-    srv.destroy_node()
-    rclpy.shutdown()
-
-
+    node = globalController()
+    rospy.spin()
 
 if __name__ == '__main__':
     main()

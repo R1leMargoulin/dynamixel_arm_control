@@ -1,7 +1,6 @@
 #-----------------------------------------IMPORTS---------------------------------------------
-import rclpy
+import rospy
 #import threading
-from rclpy.node import Node
 
 from dynamixel_arm_msgs.msg import DynamixelPosition
 from dynamixel_arm_msgs.msg import DynamixelOrder
@@ -9,21 +8,21 @@ from dynamixel_arm_control import DynamixelArm
 
 
 
-class movePlanningService(Node):
+class HardwareManager():
 
 
 #-------------------------------------------INIT---------------------------------------------
     def __init__(self):
-        super().__init__('hardware_manager')
-        
+        rospy.init_node('hardware_manager', anonymous=True)
+
         #hardware
         self.robot = DynamixelArm.DynamixelArm()
         self.robot.start()
         #listener
-        self.order_listener = self.create_subscription(DynamixelOrder, '/hardware_order', self.order_callback, 10)
+        rospy.Subscriber('/hardware_order', DynamixelOrder, self.order_callback)
 
         #publishers
-        self.motorPosition_publisher = self.create_publisher(DynamixelPosition, '/dynamixel_position', 10)
+        self.motorPosition_publisher = rospy.Publisher('/dynamixel_position', DynamixelPosition, queue_size=10)
 
      
 
@@ -55,14 +54,10 @@ class movePlanningService(Node):
 
 
 def main(args=None):
-
-    rclpy.init(args=args)
     srv = movePlanningService()
 
     try:
-        rclpy.spin(srv)
-        srv.destroy_node()
-        rclpy.shutdown()
+        rospy.spin()
         srv.robot.stop()
     except Exception as e:
         print('error')
