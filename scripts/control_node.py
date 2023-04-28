@@ -148,7 +148,7 @@ class GlobalController():
 
 def main(args=None):
 
-    node = globalController()
+    node = GlobalController()
     rospy.spin()
 
 if __name__ == '__main__':

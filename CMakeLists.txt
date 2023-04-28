@@ -21,7 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
+catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -69,10 +69,11 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+   std_msgs  # Or other packages containing msgs
+   dynamixel_arm_msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -160,15 +161,17 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
- catkin_install_python(PROGRAMS
-   scripts/control_node.py
-   scripts/DynamixelArm.py
-   scripts/hardware_infos.py
-   scripts/hardware_manager_node.py
-   scripts/moveit_controller_bridge.py
-   scripts/positions_node.py
-   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
- )
+
+
+#  catkin_install_python(PROGRAMS
+#    scripts/control_node.py
+#    scripts/dynamixel_arm.py
+#    scripts/hardware_infos.py
+#    scripts/hardware_manager_node.py
+#    scripts/moveit_controller_bridge.py
+#    scripts/positions_node.py
+#    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#  )
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html

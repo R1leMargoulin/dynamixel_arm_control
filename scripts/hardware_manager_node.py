@@ -1,10 +1,11 @@
 #-----------------------------------------IMPORTS---------------------------------------------
 import rospy
 #import threading
+from dynamixel_arm_control.dynamixel_arm import DynamixelArm
 
 from dynamixel_arm_msgs.msg import DynamixelPosition
 from dynamixel_arm_msgs.msg import DynamixelOrder
-from dynamixel_arm_control import DynamixelArm
+
 
 
 
@@ -16,7 +17,7 @@ class HardwareManager():
         rospy.init_node('hardware_manager', anonymous=True)
 
         #hardware
-        self.robot = DynamixelArm.DynamixelArm()
+        self.robot = DynamixelArm()
         self.robot.start()
         #listener
         rospy.Subscriber('/hardware_order', DynamixelOrder, self.order_callback)
@@ -54,15 +55,15 @@ class HardwareManager():
 
 
 def main(args=None):
-    srv = movePlanningService()
+    node = HardwareManager()
 
     try:
         rospy.spin()
-        srv.robot.stop()
+        node.robot.stop()
     except Exception as e:
         print('error')
         print(e)
-        srv.robot.stop()
+        node.robot.stop()
 
 
 if __name__ == '__main__':
