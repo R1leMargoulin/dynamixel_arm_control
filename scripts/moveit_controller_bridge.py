@@ -14,6 +14,11 @@ class MoveitBridge():
             'display_planned_path',
             DisplayTrajectory,
             self.display_callback)
+    
+    def run(self):
+        rospy.spin()
+
+
 
     def display_callback(self, display_msg):
         # print(display_msg.trajectory[0].joint_trajectory.points)
@@ -59,7 +64,7 @@ class MoveitBridge():
 def main(args=None):
 
     node = MoveitBridge()
-    rospy.spin()
+    node.run()
 
 
 if __name__ == '__main__':
