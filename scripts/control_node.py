@@ -37,13 +37,11 @@ class GlobalController():
         try:
             self.move_planning_position(request.motor_ids, request.goal_poses, request.speeds, request.accelerations)
             print(" j'arrive ici")
-            response = "OK"
-            return response
+            return "OK"
         except Exception as e: 
             print("error")
             print(e)
-            response = "ERROR"
-            return response
+            return "ERROR"
         
     def move_joints_callback(self, request):
         #self.get_logger().info('Moving_Robot...' )
@@ -60,11 +58,10 @@ class GlobalController():
                 msg.table_address = ADDR_GOAL_POSITION
                 msg.data = self.rad2Dynamixel(robot_infos["j"+str(i+1)], jtable[i])
                 self.order_publisher.publish(msg)
-            response.response = "OK"
-            return response
+            return "OK"
         except Exception as e:
-             self.get_logger().info(e)
-             response.response = "ERROR"
+             print(e)
+             response = "ERROR"
              return response
 
 #-------------------------------------CONVERTS-----------------------------------------------
