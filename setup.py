@@ -1,29 +1,7 @@
-from setuptools import setup
-
-package_name = 'dynamixel_arm_control'
-
-setup(
-    name=package_name,
-    version='0.0.0',
-    packages=[package_name],
-    data_files=[
-        ('share/ament_index/resource_index/packages',
-            ['resource/' + package_name]),
-        ('share/' + package_name, ['package.xml']),
-    ],
-    install_requires=['setuptools'],
-    zip_safe=True,
-    maintainer='Erwan MARTIN',
-    maintainer_email='emartin@cesi.fr',
-    description='TODO: Package description',
-    license='TODO: License declaration',
-    tests_require=['pytest'],
-    entry_points={
-        'console_scripts': [
-            'control_node = dynamixel_arm_control.control_node:main',
-            'positions_node = dynamixel_arm_control.positions_node:main',
-            'hardware_manager_node = dynamixel_arm_control.hardware_manager_node:main',
-            'moveit_controller_bridge = dynamixel_arm_control.moveit_controller_bridge:main',
-        ],
-    },
+from distutils.core import setup
+from catkin_pkg.python_setup import generate_distutils_setup
+d = generate_distutils_setup(
+    packages=['dynamixel_arm_control'],
+    package_dir={'': 'scripts'}
 )
+setup(**d)

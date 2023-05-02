@@ -1,10 +1,11 @@
 #-----------------------------------------IMPORTS---------------------------------------------
 import rospy
 #import threading
+from dynamixel_arm_control.dynamixel_arm import DynamixelArm
 
 from dynamixel_arm_msgs.msg import DynamixelPosition
 from dynamixel_arm_msgs.msg import DynamixelOrder
-from dynamixel_arm_control import DynamixelArm
+
 
 
 
@@ -16,13 +17,18 @@ class HardwareManager():
         rospy.init_node('hardware_manager', anonymous=True)
 
         #hardware
-        self.robot = DynamixelArm.DynamixelArm()
+        self.robot = DynamixelArm()
         self.robot.start()
         #listener
-        rospy.Subscriber('/hardware_order', DynamixelOrder, self.order_callback)
+        rospy.Subscriber('hardware_order', DynamixelOrder, self.order_callback)
 
         #publishers
-        self.motorPosition_publisher = rospy.Publisher('/dynamixel_position', DynamixelPosition, queue_size=10)
+        self.motorPosition_publisher = rospy.Publisher('dynamixel_position', DynamixelPosition, queue_size=10)
+
+    def run(self):
+        rospy.spin()
+        self.robot.stop()
+
 
      
 
@@ -33,7 +39,6 @@ class HardwareManager():
         #print(request)
         try:
             if(request.order_type == "write"):
-                self.robot.enable_torque(request.id)
                 self.robot.write(request.id, request.data, request.nb_bytes, request.table_address)
             elif(request.order_type == "read_joint"):
                 #read motor pose
@@ -44,6 +49,12 @@ class HardwareManager():
                 msg.pose = res
                 #print(msg)
                 self.motorPosition_publisher.publish(msg)
+            elif(request.order_type == "torque_enable"):
+                for j in self.robot.robot_infos.values():
+                    self.robot.enable_torque(j["address"])
+            elif(request.order_type == "torque_disable"):
+                for j in self.robot.robot_infos.values():
+                    self.robot.disable_torque(j["address"])
             else :
                 self.get_logger().info('ERROR IN ORDER TYPE')
         except Exception as e: 
@@ -54,15 +65,13 @@ class HardwareManager():
 
 
 def main(args=None):
-    srv = movePlanningService()
-
     try:
-        rospy.spin()
-        srv.robot.stop()
+        node = HardwareManager()
+        node.run()
     except Exception as e:
         print('error')
         print(e)
-        srv.robot.stop()
+        node.robot.stop()
 
 
 if __name__ == '__main__':

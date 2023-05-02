@@ -14,17 +14,20 @@ class GlobalController():
 #-------------------------------------------INIT---------------------------------------------
     def __init__(self):
         #publishers
-        self.order_publisher = rospy.Publisher('/hardware_order', DynamixelOrder,  queue_size=10)
+        self.order_publisher = rospy.Publisher('hardware_order', DynamixelOrder,  queue_size=10)
         rospy.init_node('control_node', anonymous=True)
         #services
-        self.srv_planning = rospy.Service( '/move_planning_service', MoveitController, self.move_planning_callback)
+        self.srv_planning = rospy.Service( 'move_planning_service', MoveitController, self.move_planning_callback)
         self.srv_joints = rospy.Service( 'move_joints', MoveJoints, self.move_joints_callback)
+
+    def run(self):
+        rospy.spin()
 
 
 
 #-------------------------------------SERVICES-----------------------------------------------
 
-    def move_planning_callback(self, request, response):
+    def move_planning_callback(self, request):
         print("order recieved")
         #self.get_logger().info('Moving_Robot...' )
         #print(request.motor_ids)
@@ -34,19 +37,26 @@ class GlobalController():
         try:
             self.move_planning_position(request.motor_ids, request.goal_poses, request.speeds, request.accelerations)
             print(" j'arrive ici")
-            response = "OK"
-            return response
+            return "OK"
         except Exception as e: 
             print("error")
             print(e)
-            response = "ERROR"
-            return response
+            return "ERROR"
         
-    def move_joints_callback(self, request, response):
+    def move_joints_callback(self, request):
         #self.get_logger().info('Moving_Robot...' )
         print(request)
         jtable = [request.joint1, request.joint2, request.joint3, request.joint4]
         try:
+        #enabling torque first
+            msg_torque = DynamixelOrder()
+            msg_torque.order_type = "torque_enable"
+            msg_torque.id = 0
+            msg_torque.nb_bytes = 0
+            msg_torque.table_address = 0
+            msg_torque.data = 0
+            self.order_publisher.publish(msg_torque)
+        #Moving robot now
             for i in range(len(jtable)):
                 print("goal")
                 print(i+1)
@@ -57,11 +67,10 @@ class GlobalController():
                 msg.table_address = ADDR_GOAL_POSITION
                 msg.data = self.rad2Dynamixel(robot_infos["j"+str(i+1)], jtable[i])
                 self.order_publisher.publish(msg)
-            response.response = "OK"
-            return response
+            return "OK"
         except Exception as e:
-             self.get_logger().info(e)
-             response.response = "ERROR"
+             print(e)
+             response = "ERROR"
              return response
 
 #-------------------------------------CONVERTS-----------------------------------------------
@@ -148,8 +157,8 @@ class GlobalController():
 
 def main(args=None):
 
-    node = globalController()
-    rospy.spin()
+    node = GlobalController()
+    node.run()
 
 if __name__ == '__main__':
     main()

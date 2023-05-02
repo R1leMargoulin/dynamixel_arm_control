@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import os
 from ast import literal_eval
 
@@ -25,7 +23,7 @@ from dynamixel_arm_control.hardware_infos import *
 #********* DYNAMIXEL Model definition *********
 
 
-class DynamixelArm:
+class DynamixelArm():
     def __init__(self):
 
         self.MY_DXL = 'X_SERIES'       # X330 (5.0 V recommended), X430, X540, 2X430
@@ -43,7 +41,7 @@ class DynamixelArm:
 
 
 
-    def start(self, ):
+    def start(self):
         # Open port
         if self.portHandler.openPort():
             print("Succeeded to open the port")
