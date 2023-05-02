@@ -8,10 +8,10 @@ from array import array
 class MoveitBridge():
     def __init__(self):
         rospy.init_node('moveit_controller_bridge')
-        rospy.wait_for_service('/move_planning_service')
-        self.serviceClient = rospy.ServiceProxy( '/move_planning_service', MoveitController)
+        rospy.wait_for_service('move_planning_service')
+        self.serviceClient = rospy.ServiceProxy( 'move_planning_service', MoveitController)
         rospy.Subscriber(
-            '/display_planned_path',
+            'display_planned_path',
             DisplayTrajectory,
             self.display_callback)
 

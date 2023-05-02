@@ -20,10 +20,15 @@ class HardwareManager():
         self.robot = DynamixelArm()
         self.robot.start()
         #listener
-        rospy.Subscriber('/hardware_order', DynamixelOrder, self.order_callback)
+        rospy.Subscriber('hardware_order', DynamixelOrder, self.order_callback)
 
         #publishers
-        self.motorPosition_publisher = rospy.Publisher('/dynamixel_position', DynamixelPosition, queue_size=10)
+        self.motorPosition_publisher = rospy.Publisher('dynamixel_position', DynamixelPosition, queue_size=10)
+
+    def run(self):
+        rospy.spin()
+        self.robot.stop()
+
 
      
 
@@ -55,11 +60,9 @@ class HardwareManager():
 
 
 def main(args=None):
-    node = HardwareManager()
-
     try:
-        rospy.spin()
-        node.robot.stop()
+        node = HardwareManager()
+        node.run()
     except Exception as e:
         print('error')
         print(e)

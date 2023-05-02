@@ -16,15 +16,23 @@ class PositionsNode():
     def __init__(self):
         rospy.init_node('positions_node', anonymous=True)
         #publishers
-        self.rate = rospy.rate(20) # 20 Hz for t/cycle = 0.05sec or 50ms
-        self.order_publisher = rospy.Publisher('/hardware_order', DynamixelOrder, queue_size=10)
-        self.joints_position_publisher = rospy.Publisher('/joint_states', JointState, queue_size=10)
+        self.rate = rospy.Rate(20) # 20 Hz for t/cycle = 0.05sec or 50ms
+        self.order_publisher = rospy.Publisher('hardware_order', DynamixelOrder, queue_size=10)
+        self.joints_position_publisher = rospy.Publisher('joint_states', JointState, queue_size=10)
 
         #subscribers
-        self.position_return = rospy.Subscriber('/dynamixel_position', DynamixelPosition, self.joint_position_return_callback)
+        self.position_return = rospy.Subscriber('dynamixel_position', DynamixelPosition, self.joint_position_return_callback)
 
         self.names = ['joint1','joint2','joint3','joint4']
         self.joint_positions = [0.0, 0.0, 0.0, 0.0]
+    
+    def run(self):
+        while not rospy.is_shutdown():
+            self.joints_read_order()
+            self.joint_states_publish()
+            self.rate.sleep()
+
+        rospy.spin()
 
 #----------------------------------SUBSCRIBER CALLBACKS--------------------------------------------
 
@@ -115,13 +123,7 @@ def main(args=None):
 
     
     node = PositionsNode()
-    while not rospy.is_shutdown():
-        node.joints_read_order()
-        node.joint_states_publish()
-        node.rate.sleep()
-
-
-    rospy.spin()
+    node.run()
 
 
 

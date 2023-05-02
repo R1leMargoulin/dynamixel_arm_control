@@ -14,11 +14,14 @@ class GlobalController():
 #-------------------------------------------INIT---------------------------------------------
     def __init__(self):
         #publishers
-        self.order_publisher = rospy.Publisher('/hardware_order', DynamixelOrder,  queue_size=10)
+        self.order_publisher = rospy.Publisher('hardware_order', DynamixelOrder,  queue_size=10)
         rospy.init_node('control_node', anonymous=True)
         #services
-        self.srv_planning = rospy.Service( '/move_planning_service', MoveitController, self.move_planning_callback)
+        self.srv_planning = rospy.Service( 'move_planning_service', MoveitController, self.move_planning_callback)
         self.srv_joints = rospy.Service( 'move_joints', MoveJoints, self.move_joints_callback)
+
+    def run(self):
+        rospy.spin()
 
 
 
@@ -149,7 +152,7 @@ class GlobalController():
 def main(args=None):
 
     node = GlobalController()
-    rospy.spin()
+    node.run()
 
 if __name__ == '__main__':
     main()
