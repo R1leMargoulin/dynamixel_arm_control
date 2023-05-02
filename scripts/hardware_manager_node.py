@@ -39,7 +39,6 @@ class HardwareManager():
         #print(request)
         try:
             if(request.order_type == "write"):
-                self.robot.enable_torque(request.id)
                 self.robot.write(request.id, request.data, request.nb_bytes, request.table_address)
             elif(request.order_type == "read_joint"):
                 #read motor pose
@@ -50,6 +49,12 @@ class HardwareManager():
                 msg.pose = res
                 #print(msg)
                 self.motorPosition_publisher.publish(msg)
+            elif(request.order_type == "torque_enable"):
+                for j in self.robot.robot_infos.values():
+                    self.robot.enable_torque(j["address"])
+            elif(request.order_type == "torque_disable"):
+                for j in self.robot.robot_infos.values():
+                    self.robot.disable_torque(j["address"])
             else :
                 self.get_logger().info('ERROR IN ORDER TYPE')
         except Exception as e: 
