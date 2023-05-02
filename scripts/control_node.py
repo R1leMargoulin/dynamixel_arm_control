@@ -27,7 +27,7 @@ class GlobalController():
 
 #-------------------------------------SERVICES-----------------------------------------------
 
-    def move_planning_callback(self, request, response):
+    def move_planning_callback(self, request):
         print("order recieved")
         #self.get_logger().info('Moving_Robot...' )
         #print(request.motor_ids)
@@ -45,7 +45,7 @@ class GlobalController():
             response = "ERROR"
             return response
         
-    def move_joints_callback(self, request, response):
+    def move_joints_callback(self, request):
         #self.get_logger().info('Moving_Robot...' )
         print(request)
         jtable = [request.joint1, request.joint2, request.joint3, request.joint4]
