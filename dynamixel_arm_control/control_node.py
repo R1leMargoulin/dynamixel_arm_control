@@ -51,6 +51,15 @@ class movePlanningService(Node):
         print(request)
         jtable = [request.joint1, request.joint2, request.joint3, request.joint4]
         try:
+            #enabling torque first
+            msg_torque = DynamixelOrder()
+            msg_torque.order_type = "torque_enable"
+            msg_torque.id = 0
+            msg_torque.nb_bytes = 0
+            msg_torque.table_address = 0
+            msg_torque.data = 0
+            self.order_publisher.publish(msg_torque)
+            #Moving robot now
             for i in range(len(jtable)):
                 print("goal")
                 print(i+1)

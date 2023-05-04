@@ -34,7 +34,7 @@ class movePlanningService(Node):
         #print(request)
         try:
             if(request.order_type == "write"):
-                self.robot.enable_torque(request.id)
+                #self.robot.enable_torque(request.id)
                 self.robot.write(request.id, request.data, request.nb_bytes, request.table_address)
             elif(request.order_type == "read_joint"):
                 #read motor pose
@@ -45,6 +45,12 @@ class movePlanningService(Node):
                 msg.pose = res
                 #print(msg)
                 self.motorPosition_publisher.publish(msg)
+            elif(request.order_type == "torque_enable"):
+                for j in self.robot.robot_infos.values():
+                    self.robot.enable_torque(j["address"])
+            elif(request.order_type == "torque_disable"):
+                for j in self.robot.robot_infos.values():
+                    self.robot.disable_torque(j["address"])
             else :
                 self.get_logger().info('ERROR IN ORDER TYPE')
         except Exception as e: 
@@ -62,8 +68,8 @@ def main(args=None):
     try:
         rclpy.spin(srv)
         srv.destroy_node()
-        rclpy.shutdown()
         srv.robot.stop()
+        rclpy.shutdown()
     except Exception as e:
         print('error')
         print(e)

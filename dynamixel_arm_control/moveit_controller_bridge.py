@@ -1,6 +1,7 @@
 import rclpy
 import time
 from moveit_msgs.msg import DisplayTrajectory
+from dynamixel_arm_msgs.msg import DynamixelOrder
 from dynamixel_arm_srv.srv import MoveitController
 from rclpy.node import Node
 
@@ -15,6 +16,7 @@ class MoveJointPlanExecutionCallback(Node):
             '/display_planned_path',
             self.display_callback,
         10)
+        self.order_publisher = self.create_publisher(DynamixelOrder, '/hardware_order', 10)
 
     def display_callback(self, display_msg):
         # print(display_msg.trajectory[0].joint_trajectory.points)
@@ -23,6 +25,15 @@ class MoveJointPlanExecutionCallback(Node):
             self.get_logger().error('Service not available, quitting...')
             print("service not available")
             return   
+        #enabling torque first
+        msg_torque = DynamixelOrder()
+        msg_torque.order_type = "torque_enable"
+        msg_torque.id = 0
+        msg_torque.nb_bytes = 0
+        msg_torque.table_address = 0
+        msg_torque.data = 0
+        self.order_publisher.publish(msg_torque)
+        #Moving robot now
         for name in display_msg.trajectory[0].joint_trajectory.joint_names:
             #print(name[-1])
             motorIDs.append(int(name[-1]))
