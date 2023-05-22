@@ -8,16 +8,17 @@ directory = "/home/r1/"
 nb_point_wanted = 100
 
 #Parametric equations in cartesian coordinates
-r   = .05 #ray
+r   = 0.15 #ray
 t = np.linspace(0, 2* np.pi, 100) #timeline/period
 
 x_offset = 0.0
-y_offset = 0.05
-z_offset = 0.15
+y_offset = 0.00
+z_offset = 0.05
 
-x = 2*r*np.sqrt(2)*((np.sin(t))/(1+(np.cos(t)**2))) + x_offset
-y = 2*r*np.sqrt(2)*((np.sin(t)*np.cos(t))/(1+(np.cos(t)**2))) + y_offset
-z = 2*r*np.sqrt(2)*np.cos(t) + z_offset
+x = r*np.sqrt(2)*((np.sin(t))/(1+(np.cos(t)**2))) # + x_offset
+y = r*np.sqrt(2)*((np.sin(t)*np.cos(t))/(1+(np.cos(t)**2))) #+ y_offset
+z = np.sqrt((4*r**2)-(x**2)-(y**2))
+#z = 2*r*np.sqrt(2)*np.cos(t) + z_offset
 
 
 fig = plt.figure('Parametric curve')
@@ -26,7 +27,7 @@ ax.plot(x, y, z, '-r', linewidth = 3)
 
 coords = []
 for i in range(len(t)):
-    coords.append([x[i],y[i],z[i]])
+    coords.append([x[i] +x_offset ,y[i] +y_offset ,z[i]+z_offset])
 
 for i in range(len(coords)):
     if i == 0:
