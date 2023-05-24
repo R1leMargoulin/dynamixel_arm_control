@@ -31,6 +31,13 @@ def calculate_inverse_kinematics(x, y, z):
     except Exception:
         print("Target position is not reachable.")
 
+def frame_inverse_kinematics(target, init_joints):
+    try:
+        joint_angles = robot.inverse_kinematics_frame(target, init_joints)
+        return joint_angles
+    except Exception:
+        print("Target position is not reachable.")
+
 # Main program
 if __name__ == "__main__":
 
@@ -39,12 +46,17 @@ if __name__ == "__main__":
 #     if joint_angles is not None:
 #         print("Joint angles:", joint_angles)
     print (robot)
+    actual_joints = [0,0,0,0,0,0]
     for p in xyz_points:
         x=p[0]
         y=p[1]
         z=p[2]
-        print(str(x)+"/"+str(y)+"/"+str(z))
-        solution = calculate_inverse_kinematics(x,y,z)
+
+        target = [x,y,z]
+        frame_target = np.eye(4)
+        frame_target[:3,3] = target
+
+        solution = frame_inverse_kinematics(frame_target, actual_joints)
         #print(solution)
         j1 = solution[1]
         j2 = solution[2]
@@ -52,6 +64,8 @@ if __name__ == "__main__":
         j4 = solution[4]
         print([j1,j2,j3,j4])
         joints_waypoints.append([j1,j2,j3,j4])
+        actual_joints = [0, j1,j2,j3,j4, 0]
+        
 
     csvFormat = ""
     for point in joints_waypoints:
