@@ -46,7 +46,8 @@ class MoveJointPlanExecutionCallback(Node):
         #Moving robot now
         for name in goal_handle.trajectory.joint_names:
             #print(name[-1])
-            motorIDs.append(int(name[-1]))
+            if(name[-1]=="1" or name[-1] == "2" or name[-1] == "3" or name[-1] == "4"):
+                motorIDs.append(int(name[-1]))
         #print(display_msg.trajectory[0].joint_trajectory.points)
         totalTime = goal_handle.trajectory.points[-1].time_from_start.sec + goal_handle.trajectory.points[-1].time_from_start.nanosec * 0.000000001
         nbSteps = len(goal_handle.trajectory.points)
@@ -70,14 +71,14 @@ class MoveJointPlanExecutionCallback(Node):
             result.error_code = 0
             return result
         
-        
+
 
     def move(self, motorIds, GoalPoses, Speeds, Accelerations):
         request = MoveitController.Request()
         request.motor_ids = motorIds
-        request.goal_poses = GoalPoses
-        request.speeds = Speeds
-        request.accelerations = Accelerations 
+        request.goal_poses = [GoalPoses[0],GoalPoses[1],GoalPoses[2],GoalPoses[3]]
+        request.speeds = [Speeds[0],Speeds[1],Speeds[2],Speeds[3],]
+        request.accelerations = [Accelerations[0],Accelerations[1],Accelerations[2],Accelerations[3]] 
        
 
         # Call the service
