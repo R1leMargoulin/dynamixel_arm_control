@@ -130,12 +130,13 @@ def main(args=None):
     trajectory_goals_client = TrajectoryGoalsClient()
 
     ##for one joint goal
-    # trajectory_goals_client.send_goal(0.1,0.0,0.0,0.0)
+    # trajectory_goals_client.send_goal(0.1,-1.0,0.0,0.0)
+    # trajectory_goals_client.send_goal(1,0.0,0.0,0.0)
 
     #for a trajectory of several goal joints.
     goal_positions = [
-            [1.0, 0.0, 0.0, 0.0],  # Goal 1
-            [1.0, 0.1, 0.0, 0.0],  # Goal 2
+            [0.0, 0.0, 0.0, 0.0],  # Goal 1
+            [1.0, -1.0, 0.0, 0.0],  # Goal 2
             [2.0, 0.0, 0.0, 0.0]   # Goal 3
         ]
     trajectory_goals_client.send_trajectory(goal_positions)
