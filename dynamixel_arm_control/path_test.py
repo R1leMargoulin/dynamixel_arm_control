@@ -76,7 +76,6 @@ class TrajectoryGoalsClient(Node):
 
 
     def send_trajectory(self, trajectoryTable): #j1/j2/j3/j4 floats in rad.
-        print("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz")
         request = GetMotionPlan.Request()
 
         # Set the joint names for the goal
@@ -97,9 +96,10 @@ class TrajectoryGoalsClient(Node):
         # Prepare your trajectory goals
         trajectory = JointTrajectory()
         trajectory.joint_names = ['joint1', 'joint2', 'joint3', 'joint4']
-
+        print(trajectoryTable)
         # Create a goal point
         for positions in trajectoryTable:
+            print(positions)
             point = JointTrajectoryPoint()
             point.time_from_start.sec = 1
             point.positions = positions
@@ -111,9 +111,11 @@ class TrajectoryGoalsClient(Node):
                 # Set joint constraints for the goal state
                 joint_constraint = JointConstraint()
                 joint_constraint.joint_name = trajectory.joint_names[i]
-                joint_constraint.position = trajectory.points[0].positions[i]  # Specify the desired position constraint for joint1
+                joint_constraint.position = positions[i]  # Specify the desired position constraint for joint1
                 joint_constraint.tolerance_above = 0.01  # Specify the tolerance above the position constraint
                 joint_constraint.tolerance_below = 0.01  # Specify the tolerance below the position constraint
+
+                print(joint_constraint.position)
 
                 # Add the joint constraint to the goal constraints
                 goal_constraints.joint_constraints.append(joint_constraint)
@@ -128,11 +130,12 @@ class TrajectoryGoalsClient(Node):
             if future.result() is not None:
                 #appeler l'action server ici
                 response = future.result()
-                self.get_logger().info('Motion plan received: %s' % response.motion_plan_response)
-                point_trajectory = TrajectoryMoveit()
+                #self.get_logger().info('Motion plan received: %s' % response.motion_plan_response)
+                point_trajectory = TrajectoryMoveit.Request()
                 point_trajectory.trajectory = response.motion_plan_response.trajectory.joint_trajectory
                 future_traj = self.bridgeClient.call_async(point_trajectory)
                 rclpy.spin_until_future_complete(self, future_traj)
+                request.motion_plan_request.start_state.joint_state.position = positions
                 
             else:
                 self.get_logger().info('Failed to receive motion plan response.')
@@ -149,7 +152,7 @@ def main(args=None):
 
     #for a trajectory of several goal joints.
     goal_positions = [
-            [0.0, 0.0, 0.0, 0.0],  # Goal 1
+            [1.0, 0.0, 0.0, 0.0],  # Goal 1
             [1.0, -1.0, 0.0, 0.0],  # Goal 2
             [2.0, 0.0, 0.0, 0.0]   # Goal 3
         ]
