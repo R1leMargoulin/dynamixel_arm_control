@@ -3,6 +3,7 @@ import time
 from moveit_msgs.msg import DisplayTrajectory
 from dynamixel_arm_msgs.msg import DynamixelOrder
 from dynamixel_arm_srv.srv import MoveitController
+from dynamixel_arm_srv.srv import TrajectoryMoveit
 from control_msgs.action import FollowJointTrajectory
 from rclpy.node import Node
 from rclpy.action import ActionServer
@@ -20,9 +21,8 @@ class MoveJointPlanExecutionCallback(Node):
         #     self.display_callback,
         # 10)
 #------------------------------------------------
-        self._action_server = ActionServer(self,
-            FollowJointTrajectory,
-            'arm_moveit/joint_trajectory_follow',
+        self._action_server = self.create_service(TrajectoryMoveit,
+            '/joint_trajectory_follow',
             self.execute_callback)
         print("bbb")
 
@@ -67,10 +67,7 @@ class MoveJointPlanExecutionCallback(Node):
             self.move(motorIDs, array('f', step.positions), array('f', step.velocities), array('f', step.accelerations))
             print(totalTime)
             time.sleep(totalTime/nbSteps) #time to wait between two steps
-            result = FollowJointTrajectory.Result()
-        goal_handle.succeed()
-        result.error_code = 0
-        return result
+
         
 
 

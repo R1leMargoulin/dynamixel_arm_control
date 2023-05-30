@@ -4,6 +4,7 @@ from moveit_msgs.srv import GetMotionPlan
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from control_msgs.action import FollowJointTrajectory
 from moveit_msgs.msg import RobotState, Constraints, JointConstraint
+from dynamixel_arm_srv.srv import TrajectoryMoveit
 
 class TrajectoryGoalsClient(Node):
 
@@ -11,7 +12,12 @@ class TrajectoryGoalsClient(Node):
         super().__init__('trajectory_goals_client')
         self.motion_plan_client = self.create_client(GetMotionPlan, '/plan_kinematic_path')
         while not self.motion_plan_client.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('Service not available, waiting...')
+            self.get_logger().info('Service 1 not available, waiting...')
+
+        self.bridgeClient = self.create_client(TrajectoryMoveit, '/joint_trajectory_follow')
+        while not self.bridgeClient.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service 2 not available, waiting again...')
+
 
     def send_goal(self, j1,j2,j3,j4): #j1/j2/j3/j4 floats in rad.
         request = GetMotionPlan.Request()
@@ -122,7 +128,11 @@ class TrajectoryGoalsClient(Node):
                 #appeler l'action server ici
                 response = future.result()
                 self.get_logger().info('Motion plan received: %s' % response.motion_plan_response)
-                # Process the response as needed
+                trajectory = TrajectoryMoveit()
+                trajectory.Request.trajectory = response.motion_plan_response.trajectory.joint_trajectory
+                future_traj = self.bridgeClient.call_async(trajectory)
+                rclpy.spin_until_future_complete(self, future_traj)
+                
             else:
                 self.get_logger().info('Failed to receive motion plan response.')
 
