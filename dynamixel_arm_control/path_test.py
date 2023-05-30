@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 from moveit_msgs.srv import GetMotionPlan
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from control_msgs.action import FollowJointTrajectory
 from moveit_msgs.msg import RobotState, Constraints, JointConstraint
 
 class TrajectoryGoalsClient(Node):
@@ -62,7 +63,7 @@ class TrajectoryGoalsClient(Node):
 
         if future.result() is not None:
             response = future.result()
-            self.get_logger().info('Motion plan received: %s' % response.motion_plan_response)
+            self.get_logger().info('Motion plan received: %s' % response.motion_plan_response.trajectory)
             # Process the response as needed
         else:
             self.get_logger().info('Failed to receive motion plan response.')
@@ -113,17 +114,19 @@ class TrajectoryGoalsClient(Node):
             # Set the goal constraints in the motion plan request
             request.motion_plan_request.goal_constraints.append(goal_constraints)
 
-        # Call the service
-        future = self.motion_plan_client.call_async(request)
-        rclpy.spin_until_future_complete(self, future)
+            # Call the service
+            future = self.motion_plan_client.call_async(request)
+            rclpy.spin_until_future_complete(self, future)
 
-        if future.result() is not None:
-            response = future.result()
-            self.get_logger().info('Motion plan received: %s' % response.motion_plan_response)
-            # Process the response as needed
-        else:
-            self.get_logger().info('Failed to receive motion plan response.')
+            if future.result() is not None:
+                #appeler l'action server ici
+                response = future.result()
+                self.get_logger().info('Motion plan received: %s' % response.motion_plan_response)
+                # Process the response as needed
+            else:
+                self.get_logger().info('Failed to receive motion plan response.')
 
+    # def send_one_point_to_action
 
 def main(args=None):
     rclpy.init(args=args)
