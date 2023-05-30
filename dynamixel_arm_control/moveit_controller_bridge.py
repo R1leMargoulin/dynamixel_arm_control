@@ -14,21 +14,22 @@ class MoveJointPlanExecutionCallback(Node):
         super().__init__('moveit_controller_bridge')
         self._client = self.create_client(MoveitController, '/move_planning_service')
 #-----------------------------------------------
-        self._display_sub = self.create_subscription(
-            DisplayTrajectory,
-            '/display_planned_path',
-            self.display_callback,
-        10)
+        # self._display_sub = self.create_subscription(
+        #     DisplayTrajectory,
+        #     '/display_planned_path',
+        #     self.display_callback,
+        # 10)
 #------------------------------------------------
         self._action_server = ActionServer(self,
             FollowJointTrajectory,
-            'joint_trajectory_follow',
+            'arm_moveit/joint_trajectory_follow',
             self.execute_callback)
-
+        print("bbb")
 
         self.order_publisher = self.create_publisher(DynamixelOrder, '/hardware_order', 10)
 
-    def display_callback(self, goal_handle):
+    def execute_callback(self, goal_handle):
+        print("aaaaaaaaaaaaaaaah")
         # print(display_msg.trajectory[0].joint_trajectory.points)
         motorIDs = array('B',[])
         if not self._client.wait_for_service(timeout_sec=1.0):
@@ -66,10 +67,10 @@ class MoveJointPlanExecutionCallback(Node):
             self.move(motorIDs, array('f', step.positions), array('f', step.velocities), array('f', step.accelerations))
             print(totalTime)
             time.sleep(totalTime/nbSteps) #time to wait between two steps
-
             result = FollowJointTrajectory.Result()
-            result.error_code = 0
-            return result
+        goal_handle.succeed()
+        result.error_code = 0
+        return result
         
 
 
@@ -99,8 +100,9 @@ def main(args=None):
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically
     # when the garbage collector destroys the node object)
-    node.destroy_node()
-    rclpy.shutdown()
+
+    # node.destroy_node()
+    # rclpy.shutdown()
 
 
 if __name__ == '__main__':
