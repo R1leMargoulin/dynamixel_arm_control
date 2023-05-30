@@ -76,6 +76,7 @@ class TrajectoryGoalsClient(Node):
 
 
     def send_trajectory(self, trajectoryTable): #j1/j2/j3/j4 floats in rad.
+        print("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz")
         request = GetMotionPlan.Request()
 
         # Set the joint names for the goal
@@ -128,9 +129,9 @@ class TrajectoryGoalsClient(Node):
                 #appeler l'action server ici
                 response = future.result()
                 self.get_logger().info('Motion plan received: %s' % response.motion_plan_response)
-                trajectory = TrajectoryMoveit()
-                trajectory.Request.trajectory = response.motion_plan_response.trajectory.joint_trajectory
-                future_traj = self.bridgeClient.call_async(trajectory)
+                point_trajectory = TrajectoryMoveit()
+                point_trajectory.trajectory = response.motion_plan_response.trajectory.joint_trajectory
+                future_traj = self.bridgeClient.call_async(point_trajectory)
                 rclpy.spin_until_future_complete(self, future_traj)
                 
             else:

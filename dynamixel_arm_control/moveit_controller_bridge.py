@@ -21,14 +21,14 @@ class MoveJointPlanExecutionCallback(Node):
         #     self.display_callback,
         # 10)
 #------------------------------------------------
-        self._action_server = self.create_service(TrajectoryMoveit,
+        self.trajectory_sevice = self.create_service(TrajectoryMoveit,
             '/joint_trajectory_follow',
             self.execute_callback)
         print("bbb")
 
         self.order_publisher = self.create_publisher(DynamixelOrder, '/hardware_order', 10)
 
-    def execute_callback(self, goal_handle):
+    def execute_callback(self, goal_handle, response):
         print("aaaaaaaaaaaaaaaah")
         # print(display_msg.trajectory[0].joint_trajectory.points)
         motorIDs = array('B',[])
@@ -67,6 +67,8 @@ class MoveJointPlanExecutionCallback(Node):
             self.move(motorIDs, array('f', step.positions), array('f', step.velocities), array('f', step.accelerations))
             print(totalTime)
             time.sleep(totalTime/nbSteps) #time to wait between two steps
+        response.response = "OK"
+        return response
 
         
 
