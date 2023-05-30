@@ -66,7 +66,8 @@ class MoveJointPlanExecutionCallback(Node):
                        
             self.move(motorIDs, array('f', step.positions), array('f', step.velocities), array('f', step.accelerations))
             print(totalTime)
-            time.sleep(totalTime/nbSteps) #time to wait between two steps
+            if(i!= len(goal_handle.trajectory.points) -1):
+                time.sleep(totalTime/nbSteps) #time to wait between two steps
         response.response = "OK"
         return response
 
