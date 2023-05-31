@@ -24,12 +24,12 @@ class MoveJointPlanExecutionCallback(Node):
         self.trajectory_sevice = self.create_service(TrajectoryMoveit,
             '/joint_trajectory_follow',
             self.execute_callback)
-        print("bbb")
+        #print("bbb")
 
         self.order_publisher = self.create_publisher(DynamixelOrder, '/hardware_order', 10)
 
     def execute_callback(self, goal_handle, response):
-        print("aaaaaaaaaaaaaaaah")
+        #print("aaaaaaaaaaaaaaaah")
         # print(display_msg.trajectory[0].joint_trajectory.points)
         motorIDs = array('B',[])
         if not self._client.wait_for_service(timeout_sec=1.0):
@@ -52,11 +52,15 @@ class MoveJointPlanExecutionCallback(Node):
         #print(display_msg.trajectory[0].joint_trajectory.points)
         totalTime = goal_handle.trajectory.points[-1].time_from_start.sec + goal_handle.trajectory.points[-1].time_from_start.nanosec * 0.000000001
         nbSteps = len(goal_handle.trajectory.points)
+        print("nb steps:", nbSteps)
+
+        print(goal_handle.trajectory.points[-1].positions)
+
         for i in range (len(goal_handle.trajectory.points)):
             step = goal_handle.trajectory.points[i]
-            print(step)
-            print("positions")
-            print(step.positions)
+            #print(step)
+            # print("positions")
+            # print(step.positions)
             # print("velocities")
             # print(step.velocities)
             # print("accelerations")
@@ -65,7 +69,7 @@ class MoveJointPlanExecutionCallback(Node):
              # Wait for the service to become available
                        
             self.move(motorIDs, array('f', step.positions), array('f', step.velocities), array('f', step.accelerations))
-            print(totalTime)
+            #print(totalTime)
             if(i!= len(goal_handle.trajectory.points) -1):
                 time.sleep(totalTime/nbSteps) #time to wait between two steps
         response.response = "OK"
