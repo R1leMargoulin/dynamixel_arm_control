@@ -8,12 +8,12 @@ directory = "/home/r1/"
 nb_point_wanted = 100
 
 #Parametric equations in cartesian coordinates
-r   = 0.15 #ray
+r   = 0.10 #ray
 t = np.linspace(0, 2* np.pi, 100) #timeline/period
 
-x_offset = 0.00
-y_offset = 0.05
-z_offset = 0.05
+x_offset = 0.10
+y_offset = 0.10
+z_offset = 0.00
 
 x = r*np.sqrt(2)*((np.sin(t))/(1+(np.cos(t)**2))) # + x_offset
 y = r*np.sqrt(2)*((np.sin(t)*np.cos(t))/(1+(np.cos(t)**2))) #+ y_offset
