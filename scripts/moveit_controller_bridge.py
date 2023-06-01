@@ -12,7 +12,7 @@ class MoveitBridge():
         rospy.init_node('moveit_controller_bridge')
         rospy.wait_for_service('move_planning_service')
         self.serviceClient = rospy.ServiceProxy( 'move_planning_service', MoveitController)
-        rospy.Subscriber('/joint_trajectory_follow', DisplayTrajectory, self.display_callback)
+        #rospy.Subscriber('/joint_trajectory_follow', DisplayTrajectory, self.display_callback)
 
         self.trajectory_sevice = rospy.Service( 'move_planning_service', TrajectoryMoveit, self.execute_callback)    
 

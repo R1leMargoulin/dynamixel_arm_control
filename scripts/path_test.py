@@ -12,8 +12,7 @@ from dynamixel_arm_srv.srv import TrajectoryMoveit
 class TrajectoryGoalsClient():
 
     def __init__(self):
-        rospy.init_node('path_node', anonymous=True)
-        super().__init__('trajectory_goals_client')
+        rospy.init_node('trajectory_goals_client', anonymous=True)
         rospy.wait_for_service('/plan_kinematic_path')
         self.motion_plan_client = rospy.ServiceProxy('/plan_kinematic_path', GetMotionPlan)
         
@@ -189,7 +188,7 @@ class TrajectoryGoalsClient():
 
 def main(args=None):
     trajectory_goals_client = TrajectoryGoalsClient()
-    rospy.spin()
+    #rospy.spin()
 
     ##for one joint goal
     # trajectory_goals_client.send_goal(0.1,-1.0,0.0,0.0)
