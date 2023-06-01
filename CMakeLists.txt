@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_msgs
   dynamixel_arm_srv
   dynamixel_arm_msgs
+  trajectory_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -73,6 +74,9 @@ catkin_python_setup()
    DEPENDENCIES
    std_msgs  # Or other packages containing msgs
    dynamixel_arm_msgs
+   dynamixel_arm_srv
+   moveit_msgs
+   trajectory_msgs
  )
 
 ################################################
