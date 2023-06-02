@@ -2,7 +2,7 @@ import rospy
 import time
 
 from moveit_msgs.srv import GetMotionPlan
-from moveit_msgs.msg import RobotState, Constraints, JointConstraint
+from moveit_msgs.msg import RobotState, Constraints, JointConstraint, MotionPlanRequest
 
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
@@ -24,18 +24,18 @@ class TrajectoryGoalsClient():
     #     request = GetMotionPlan.Request()
 
     #     # Set the joint names for the goal
-    #     request.motion_plan_request.group_name = 'manipulator'
-    #     request.motion_plan_request.num_planning_attempts = 1
-    #     request.motion_plan_request.allowed_planning_time = 1.0
-    #     request.motion_plan_request.max_velocity_scaling_factor = 0.10
-    #     request.motion_plan_request.max_acceleration_scaling_factor = 0.10
+    #     request.group_name = 'manipulator'
+    #     request.num_planning_attempts = 1
+    #     request.allowed_planning_time = 1.0
+    #     request.max_velocity_scaling_factor = 0.10
+    #     request.max_acceleration_scaling_factor = 0.10
 
     #     #creating start state
     #     # Set the start state
     #     start_state = RobotState()
     #     start_state.joint_state.name = ['joint1', 'joint2', 'joint3', 'joint4']
     #     start_state.joint_state.position = [0.0, 0.0, 0.0, 0.0]  # Set the joint positions for the start state
-    #     request.motion_plan_request.start_state = start_state
+    #     request.start_state = start_state
 
 
     #     # Prepare your trajectory goals
@@ -44,7 +44,7 @@ class TrajectoryGoalsClient():
 
     #     # Create a goal point
     #     point = JointTrajectoryPoint()
-    #     point.time_from_start.sec = 1  # Specify the time from start in seconds
+    #     point.time_from_start.secs = 1  # Specify the time from start in seconds
     #     point.positions = [j1, j2, j3, j4]  # Set the joint positions for the goal
     #     trajectory.points.append(point)
 
@@ -62,7 +62,7 @@ class TrajectoryGoalsClient():
     #         goal_constraints.joint_constraints.append(joint_constraint)
 
     #     # Set the goal constraints in the motion plan request
-    #     request.motion_plan_request.goal_constraints.append(goal_constraints)
+    #     request.goal_constraints.append(goal_constraints)
 
     #     # Call the service
     #     future = self.motion_plan_client.call_async(request)
@@ -79,24 +79,24 @@ class TrajectoryGoalsClient():
     def send_trajectory(self, trajectoryTable, start = [0.0, 0.0, 0.0, 0.0]): #j1/j2/j3/j4 floats in rad.
         start_pose = start
         go = True
-        final_full_trajectory = TrajectoryMoveit.Request()
+        final_full_trajectory = JointTrajectory()
 
         for positions in trajectoryTable:
-            request = GetMotionPlan.Request()
+            request = MotionPlanRequest()
 
             # Set the joint names for the goal
-            request.motion_plan_request.group_name = 'manipulator'
-            request.motion_plan_request.num_planning_attempts = 1
-            request.motion_plan_request.allowed_planning_time = 2.0
-            request.motion_plan_request.max_velocity_scaling_factor = 0.50
-            request.motion_plan_request.max_acceleration_scaling_factor = 0.50
+            request.group_name = 'manipulator'
+            request.num_planning_attempts = 1
+            request.allowed_planning_time = 2.0
+            request.max_velocity_scaling_factor = 0.50
+            request.max_acceleration_scaling_factor = 0.50
 
             #creating start state
             # Set the start state
             start_state = RobotState()
             start_state.joint_state.name = ['joint1', 'joint2', 'joint3', 'joint4']
             start_state.joint_state.position = start_pose  # Set the joint positions for the start state
-            request.motion_plan_request.start_state = start_state
+            request.start_state = start_state
 
 
             # Prepare your trajectory goals
@@ -107,7 +107,7 @@ class TrajectoryGoalsClient():
         
             #print(positions)
             point = JointTrajectoryPoint()
-            point.time_from_start.sec = 1
+            point.time_from_start.secs = 1
             point.positions = positions
             trajectory.points.append(point)
 
@@ -127,51 +127,51 @@ class TrajectoryGoalsClient():
                 goal_constraints.joint_constraints.append(joint_constraint)
 
             # Set the goal constraints in the motion plan request
-            request.motion_plan_request.goal_constraints.append(goal_constraints)
+            request.goal_constraints.append(goal_constraints)
 
-            #print(request.motion_plan_request.goal_constraints)
+            #print(request.goal_constraints)
 
             # Call the service
             future = self.motion_plan_client(request)
             #rclpy.spin_until_future_complete(self, future)
 
-            if future.result() is not None: #ros1??
+            if future is not None: #ros1??
                 #appeler l'action server ici
-                response = future.result()
+                response = future
                 print("-------------------------------------")
                 #self.get_logger().info('Motion plan received: %s' % response.motion_plan_response)
-                # self.get_logger().info('time test BEFORE: %s' % response.motion_plan_response.trajectory.joint_trajectory.points[-1].time_from_start.sec)
-                # self.get_logger().info('time test BEFORE: %s' % response.motion_plan_response.trajectory.joint_trajectory.points[-1].time_from_start.nanosec)
+                # self.get_logger().info('time test BEFORE: %s' % response.motion_plan_response.trajectory.joint_trajectory.points[-1].time_from_start.secs)
+                # self.get_logger().info('time test BEFORE: %s' % response.motion_plan_response.trajectory.joint_trajectory.points[-1].time_from_start.nsecs)
                 #concatenate all of our results in one single trajectory
                 current_trajectory = response.motion_plan_response.trajectory.joint_trajectory
-                if (len(final_full_trajectory.trajectory.points)==0):
+                if (len(final_full_trajectory.points)==0):
                     #no add needed as it is the first point, we just append
-                    final_full_trajectory.trajectory.joint_names = current_trajectory.joint_names
+                    final_full_trajectory.joint_names = current_trajectory.joint_names
                     for i in range(len(current_trajectory.points)):
                         if (i != len(current_trajectory.points) -1):
-                            final_full_trajectory.trajectory.points.append(current_trajectory.points[i])
+                            final_full_trajectory.points.append(current_trajectory.points[i])
                 else:
                     #we add the previous time_from_start
-                    previous_time_sec = final_full_trajectory.trajectory.points[-1].time_from_start.sec
-                    previous_time_nanosec = final_full_trajectory.trajectory.points[-1].time_from_start.nanosec
+                    previous_time_sec = final_full_trajectory.points[-1].time_from_start.secs
+                    previous_time_nanosec = final_full_trajectory.points[-1].time_from_start.nsecs
                     for i in range(len(current_trajectory.points)):
-                        current_trajectory.points[i].time_from_start.sec = previous_time_sec + current_trajectory.points[i].time_from_start.sec
-                        if((current_trajectory.points[i].time_from_start.nanosec + previous_time_nanosec) >= 1000000000):
-                            current_trajectory.points[i].time_from_start.nanosec = current_trajectory.points[i].time_from_start.nanosec + previous_time_nanosec - 1000000000
-                            current_trajectory.points[i].time_from_start.sec = current_trajectory.points[i].time_from_start.sec + 1
+                        current_trajectory.points[i].time_from_start.secs = previous_time_sec + current_trajectory.points[i].time_from_start.secs
+                        if((current_trajectory.points[i].time_from_start.nsecs + previous_time_nanosec) >= 1000000000):
+                            current_trajectory.points[i].time_from_start.nsecs = current_trajectory.points[i].time_from_start.nsecs + previous_time_nanosec - 1000000000
+                            current_trajectory.points[i].time_from_start.secs = current_trajectory.points[i].time_from_start.secs + 1
                         else:
-                            current_trajectory.points[i].time_from_start.nanosec = current_trajectory.points[i].time_from_start.nanosec + previous_time_nanosec
+                            current_trajectory.points[i].time_from_start.nsecs = current_trajectory.points[i].time_from_start.nsecs + previous_time_nanosec
                         if ((i == len(current_trajectory.points) -1) or (i == 0)):
-                            current_trajectory.points[i].velocities = final_full_trajectory.trajectory.points[-1].velocities
-                        final_full_trajectory.trajectory.points.append(current_trajectory.points[i])
+                            current_trajectory.points[i].velocities = final_full_trajectory.points[-1].velocities
+                        final_full_trajectory.points.append(current_trajectory.points[i])
                 start_pose = positions
-                self.get_logger().info('point sent: %s' % current_trajectory.points[i])
+                print('point sent: %s' % current_trajectory.points[i])
             else:
-                self.get_logger().info('Failed to receive motion plan response.')
+                print('Failed to receive motion plan response.')
                 go = False
             
-            # self.get_logger().info('time test AFTER: %s' % final_full_trajectory.trajectory.points[-1].time_from_start.sec)
-            # self.get_logger().info('time test AFTER: %s' % final_full_trajectory.trajectory.points[-1].time_from_start.nanosec)
+            # self.get_logger().info('time test AFTER: %s' % final_full_trajectory.points[-1].time_from_start.secs)
+            # self.get_logger().info('time test AFTER: %s' % final_full_trajectory.points[-1].time_from_start.nsecs)
                     
                         
                 # point_trajectory = TrajectoryMoveit.Request()

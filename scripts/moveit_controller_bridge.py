@@ -14,7 +14,9 @@ class MoveitBridge():
         self.serviceClient = rospy.ServiceProxy( 'move_planning_service', MoveitController)
         #rospy.Subscriber('/joint_trajectory_follow', DisplayTrajectory, self.display_callback)
 
-        self.trajectory_sevice = rospy.Service( '/joint_trajectory_follow', TrajectoryMoveit, self.execute_callback)    
+        self.trajectory_sevice = rospy.Service( '/joint_trajectory_follow', TrajectoryMoveit, self.execute_callback)  
+
+        self.order_publisher = rospy.Publisher(DynamixelOrder, '/hardware_order', queue_size=10)  
 
     def run(self):
         rospy.spin()
