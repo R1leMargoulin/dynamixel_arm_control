@@ -16,7 +16,7 @@ class MoveitBridge():
 
         self.trajectory_sevice = rospy.Service( '/joint_trajectory_follow', TrajectoryMoveit, self.execute_callback)  
 
-        self.order_publisher = rospy.Publisher(DynamixelOrder, '/hardware_order', queue_size=10)  
+        self.order_publisher = rospy.Publisher('/hardware_order', DynamixelOrder, queue_size=10)  
 
     def run(self):
         rospy.spin()
@@ -41,7 +41,7 @@ class MoveitBridge():
             if(name[-1]=="1" or name[-1] == "2" or name[-1] == "3" or name[-1] == "4"):
                 motorIDs.append(int(name[-1]))
         #print(display_msg.trajectory[0].joint_trajectory.points)
-        totalTime = goal_handle.trajectory.points[-1].time_from_start.sec + goal_handle.trajectory.points[-1].time_from_start.nanosec * 0.000000001
+        totalTime = goal_handle.trajectory.points[-1].time_from_start.secs + goal_handle.trajectory.points[-1].time_from_start.nsecs * 0.000000001
         nbSteps = len(goal_handle.trajectory.points)
         print("nb steps:", nbSteps)
 
@@ -73,7 +73,9 @@ class MoveitBridge():
         # request.accelerations = Accelerations 
        
         print("-----------------------------")
+        print(motorIds[0])
         print(motorIds)
+        motorIds = [int(motorIds[0]), int(motorIds[1]), int(motorIds[2]), int(motorIds[3])]
         print(GoalPoses)
         print(Speeds)
         print(Accelerations)
