@@ -24,6 +24,9 @@ setup(
             'positions_node = dynamixel_arm_control.positions_node:main',
             'hardware_manager_node = dynamixel_arm_control.hardware_manager_node:main',
             'moveit_controller_bridge = dynamixel_arm_control.moveit_controller_bridge:main',
+            'path_execution_moveit_from_csv = dynamixel_arm_control.path_execution_moveit_from_csv:main',
+            'path_test = dynamixel_arm_control.path_test:main',
+
         ],
     },
 )

@@ -33,9 +33,9 @@ dxl_ids = [1,2,3,4,5]
 
 robot_infos={
     "j1":{
-        "pos_min":30,
-        "origin":30,
-        "pos_max":4095,
+        "pos_min":1750,
+        "origin":4200,
+        "pos_max":6800,
         "address":1
     },
     "j2":{

@@ -19,21 +19,44 @@ def calculate_inverse_kinematics(x, y, z):
     except Exception:
         print("Target position is not reachable.")
 
+def frame_inverse_kinematics(target, init_joints):
+    try:
+        joint_angles = robot.inverse_kinematics_frame(target, init_joints)
+        return joint_angles
+    except Exception:
+        print("Target position is not reachable.")
+
 # Main program
 if __name__ == "__main__":
-#     x = float(input("Enter the x coordinate: "))
-#     y = float(input("Enter the y coordinate: "))
-#     z = float(input("Enter the z coordinate: "))
-    x=0.1
-    y=0.1
-    z=0.2
+
+    init_joints = [0,0,0,0,0,0]
+
+    target1 = [0.1, 0.1, 0.2] 
+    target2 = [0.1, 0.1, 0.15]
+
+    frame_target1 = np.eye(4)
+    frame_target1[:3,3] = target1
+
+    frame_target2 = np.eye(4)
+    frame_target2[:3,3] = target2
 
 #     joint_angles = calculate_inverse_kinematics(x, y, z)
 #     if joint_angles is not None:
 #         print("Joint angles:", joint_angles)
     print (robot)
-    print(str(x)+"/"+str(y)+"/"+str(z))
-    solution = calculate_inverse_kinematics(x,y,z)
+    # print(str(x)+"/"+str(y)+"/"+str(z))
+
+    #kinematics calculations
+    # solution = calculate_inverse_kinematics(x,y,z)
+    solution = frame_inverse_kinematics(frame_target1, init_joints)
+    #print(solution)
+    j1 = solution[1]
+    j2 = solution[2]
+    j3 = solution[3]
+    j4 = solution[4]
+    print([j1,j2,j3,j4])
+
+    solution = frame_inverse_kinematics(frame_target2, [0,j1,j2,j3,j4,0])
     #print(solution)
     j1 = solution[1]
     j2 = solution[2]
