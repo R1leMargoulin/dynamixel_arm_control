@@ -1,0 +1,9 @@
+<launch>
+        <node pkg="dynamixel_arm_control" type="hardware_manager_node" name="hardware_manager_node"></node>
+
+        <node pkg="dynamixel_arm_control" type="control_node" name="control_node"></node>
+
+        <node pkg="dynamixel_arm_control" type="position_node" name="position_node"></node>
+
+        <node pkg="dynamixel_arm_control" type="moveit_controller_bridge" name="moveit_controller_bridge"></node>
+</launch>

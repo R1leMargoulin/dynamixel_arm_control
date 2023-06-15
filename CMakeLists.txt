@@ -9,6 +9,7 @@ project(dynamixel_arm_control)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   rospy
+  roslaunch
   moveit_msgs
   dynamixel_arm_srv
   dynamixel_arm_msgs
@@ -199,11 +200,11 @@ include_directories(
 # )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+ install(FILES
+   launch/control.launch
+   # myfile2
+   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+ )
 
 #############
 ## Testing ##

@@ -1,6 +1,7 @@
 import rospy
 import time
 
+from std_msgs.msg import String
 from moveit_msgs.srv import GetMotionPlan
 from moveit_msgs.msg import RobotState, Constraints, JointConstraint, MotionPlanRequest
 
@@ -18,6 +19,8 @@ class TrajectoryGoalsClient():
         
         rospy.wait_for_service('/joint_trajectory_follow')
         self.bridgeClient = rospy.ServiceProxy('/joint_trajectory_follow', TrajectoryMoveit)
+
+        self.pub_end = rospy.Publisher('trajectory_end_indicator', String, queue_size=10)
 
 
     # def send_goal(self, j1,j2,j3,j4): #j1/j2/j3/j4 floats in rad.
@@ -76,7 +79,7 @@ class TrajectoryGoalsClient():
     #         self.get_logger().info('Failed to receive motion plan response.')
 
 
-    def send_trajectory(self, trajectoryTable, start = [0.0, 0.0, 0.0, 0.0]): #j1/j2/j3/j4 floats in rad.
+    def send_trajectory(self, trajectoryTable, start = [0.0, 0.0, 0.0, 0.0], nb_iterations = 1): #j1/j2/j3/j4 floats in rad.
         start_pose = start
         go = True
         final_full_trajectory = JointTrajectory()
@@ -178,10 +181,13 @@ class TrajectoryGoalsClient():
                 # point_trajectory.trajectory = response.motion_plan_response.trajectory.joint_trajectory
 
         if(go==True):
-            future_traj = self.bridgeClient(final_full_trajectory)
+            for n in range(nb_iterations):
+                future_traj = self.bridgeClient(final_full_trajectory)
             #rclpy.spin_until_future_complete(self, future_traj)
             # print("debug mode")
-                
+        print("sending a finish")
+        self.pub_end.publish("FINISHED")
+
             
 
     # def send_one_point_to_action
@@ -215,6 +221,8 @@ def main(args=None):
     ros_path = "/home/r1/catkin_ws/src/"
     csv_directory = "/home/r1/"
 
+    nb_of_iteration = 2
+
     f = open(csv_directory+"joints_waypoints.csv", "r")
     csv = f.read()
 
@@ -232,13 +240,12 @@ def main(args=None):
     #go to an init pose
     #trajectory_goals_client.send_trajectory([goal_positions[0]])
     #time.sleep(0.5)
-
     for p in goal_positions:
         print(p)
 
 
     #SENDING THE ACTUAL LIST OF GOALS
-    trajectory_goals_client.send_trajectory(goal_positions, start= goal_positions[0])
+    trajectory_goals_client.send_trajectory(goal_positions, start= goal_positions[0], nb_iterations=nb_of_iteration)
 
 if __name__ == '__main__':
     main()
