@@ -218,10 +218,10 @@ def main(args=None):
 
 
     #FULL LEMNISCATE TRAJECTORY TEST
-    ros_path = "/home/r1/catkin_ws/src/"
-    csv_directory = "/home/r1/"
+    ros_path = "/home/ubuntu/catkin_ws/src/"
+    csv_directory = "/home/ubuntu/"
 
-    nb_of_iteration = 2
+    nb_of_iteration = 3
 
     f = open(csv_directory+"joints_waypoints.csv", "r")
     csv = f.read()
