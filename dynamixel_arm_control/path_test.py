@@ -6,6 +6,7 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from control_msgs.action import FollowJointTrajectory
 from moveit_msgs.msg import RobotState, Constraints, JointConstraint
 from dynamixel_arm_srv.srv import TrajectoryMoveit
+from std_msgs.msg import String
 
 class TrajectoryGoalsClient(Node):
 
@@ -19,6 +20,8 @@ class TrajectoryGoalsClient(Node):
         while not self.bridgeClient.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service 2 not available, waiting again...')
 
+        self.pub_end = self.create_publisher(String, 'trajectory_end_indicator', 10)
+        
 
     # def send_goal(self, j1,j2,j3,j4): #j1/j2/j3/j4 floats in rad.
     #     request = GetMotionPlan.Request()
@@ -76,7 +79,7 @@ class TrajectoryGoalsClient(Node):
     #         self.get_logger().info('Failed to receive motion plan response.')
 
 
-    def send_trajectory(self, trajectoryTable, start = [0.0, 0.0, 0.0, 0.0]): #j1/j2/j3/j4 floats in rad.
+    def send_trajectory(self, trajectoryTable, start = [0.0, 0.0, 0.0, 0.0], nb_iterations = 1): #j1/j2/j3/j4 floats in rad.
         start_pose = start
         go = True
         final_full_trajectory = TrajectoryMoveit.Request()
@@ -178,11 +181,13 @@ class TrajectoryGoalsClient(Node):
                 # point_trajectory.trajectory = response.motion_plan_response.trajectory.joint_trajectory
 
         if(go==True):
-            future_traj = self.bridgeClient.call_async(final_full_trajectory)
-            rclpy.spin_until_future_complete(self, future_traj)
+            for n in range(nb_iterations):
+                future_traj = self.bridgeClient.call_async(final_full_trajectory)
+                rclpy.spin_until_future_complete(self, future_traj)
             # print("debug mode")
                 
-            
+            print("sending a finish")
+            self.pub_end.publish("FINISHED")
 
     # def send_one_point_to_action
 
@@ -215,6 +220,8 @@ def main(args=None):
     ros_path = "/home/r1/ros2_ws/src/"
     csv_directory = "/home/r1/"
 
+    nb_of_iteration = 3
+
     f = open(csv_directory+"joints_waypoints.csv", "r")
     csv = f.read()
 
@@ -238,7 +245,7 @@ def main(args=None):
 
 
     #SENDING THE ACTUAL LIST OF GOALS
-    trajectory_goals_client.send_trajectory(goal_positions, start= goal_positions[0])
+    trajectory_goals_client.send_trajectory(goal_positions, start= goal_positions[0], nb_iterations=nb_of_iteration)
     rclpy.shutdown()
 
 if __name__ == '__main__':

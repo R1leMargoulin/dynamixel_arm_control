@@ -16,6 +16,7 @@
   <exec_depend>rosidl_typesupport_c</exec_depend>
   <exec_depend>dynamixel_arm_srv</exec_depend>
   <exec_depend>dynamixel_arm_msgs</exec_depend>
+  <exec_depend>ros2launch</exec_depend>
   <exec_depend>moveit_msgs</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>moveit_ros_planning_interface</exec_depend>
